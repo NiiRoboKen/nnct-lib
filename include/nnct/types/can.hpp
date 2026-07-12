@@ -14,4 +14,14 @@ struct Frame {
     bool extd;
 };
 
+struct FilterdStandardFrame {
+    Data data;
+    uint8_t dlc;
+};
+
+struct FilterdExtendedFrame {
+    Data data;
+    uint8_t dlc;
+};
+
 }
