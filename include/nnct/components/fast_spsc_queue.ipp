@@ -1,10 +1,10 @@
 namespace nnct::components {
 
 template<typename T>
-SpscQueue<T>::SpscQueue(std::size_t size_exp) : items_(std::vector<T>(1 << size_exp)), INDEX_MASK_((1 << size_exp) - 1) {}
+FastSpscQueue<T>::FastSpscQueue(std::size_t size_exp) : items_(std::vector<T>(1 << size_exp)), INDEX_MASK_((1 << size_exp) - 1) {}
 
 template<typename T>
-bool SpscQueue<T>::enqueue(T item) {
+bool FastSpscQueue<T>::enqueue(T item) {
     auto head = head_.load(std::memory_order_acquire);
     auto tail = tail_.load(std::memory_order_acquire);
 
@@ -17,20 +17,20 @@ bool SpscQueue<T>::enqueue(T item) {
 }
 
 template<typename T>
-bool SpscQueue<T>::dequeue() {
+bool FastSpscQueue<T>::dequeue() {
     auto head = head_.load(std::memory_order_acquire);
     auto tail = tail_.load(std::memory_order_acquire);
 
     if (head - tail == 0) return false;
 
-    latest_ = items_[tail & INDEX_MASK_];
+    latest_ = std::move(items_[tail & INDEX_MASK_]);
 
     tail_.store(tail + 1, std::memory_order_release);
     return true;
 }
 
 template<typename T>
-const T& SpscQueue<T>::latest() const {
+const T& FastSpscQueue<T>::latest() const {
     return latest_;
 }
 
