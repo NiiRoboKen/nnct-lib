@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-class AnglePID {
+class AnglePid {
     private:
         double kp, ki, kd;
         double out_min, out_max;
@@ -15,7 +15,7 @@ class AnglePID {
         bool first;
 
     public:
-        AnglePID(double kp, double ki, double kd, double out_min, double out_max, double range, double INTEGRAL_MAX,
+        AnglePid(double kp, double ki, double kd, double out_min, double out_max, double range, double INTEGRAL_MAX,
                  double INTEGRAL_MIN)
             : kp(kp), ki(ki), kd(kd), out_min(out_min), out_max(out_max), range(range), integral(0.0),
               integral_max(INTEGRAL_MAX), integral_min(INTEGRAL_MIN), control(0.0), prev_now_pos(0), first(true) {}

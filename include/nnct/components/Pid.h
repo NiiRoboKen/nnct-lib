@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-class PositionPid {
+class Pid {
     private:
         double kp, ki, kd;
         double out_min, out_max;
@@ -16,7 +16,7 @@ class PositionPid {
         double error;
 
     public:
-        PositionPid(double kp, double ki, double kd, double out_min, double out_max, double integral_min, double integral_max)
+        Pid(double kp, double ki, double kd, double out_min, double out_max, double integral_min, double integral_max)
             : kp(kp), ki(ki), kd(kd), out_min(out_min), out_max(out_max), integral(0.0), integral_min(integral_min),
               integral_max(integral_max), control(0.0), prev_meas(0.0), first(true) {}
 
