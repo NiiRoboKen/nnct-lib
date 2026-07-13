@@ -23,7 +23,7 @@ bool SpscQueue<T>::dequeue() {
 
     if (head - tail == 0) return false;
 
-    latest_ = items_[tail & INDEX_MASK_];
+    latest_ = std::move(items_[tail & INDEX_MASK_]);
 
     tail_.store(tail + 1, std::memory_order_release);
     return true;
