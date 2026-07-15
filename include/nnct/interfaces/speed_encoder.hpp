@@ -6,7 +6,7 @@ namespace nnct::interfaces {
 
 class SpeedEncoder {
     public:
-        virtual double getSpeed();
+        virtual int16_t getSpeed();
 };
 
 } // namespace nnct::interfaces
