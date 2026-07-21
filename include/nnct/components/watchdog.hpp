@@ -6,6 +6,8 @@ namespace nnct::components {
     
 class Watchdog {
     public:
+        const uint16_t TIMEOUT_;
+
         explicit Watchdog(uint16_t timeout);
         ~Watchdog() = default;
         
@@ -14,7 +16,6 @@ class Watchdog {
         uint8_t count() const;
         
     private:
-        const uint16_t TIMEOUT_;
         uint16_t       timestamp_       { 0 };
         uint8_t        timeout_count_   { 0 };
         bool           kicked_          { false };
