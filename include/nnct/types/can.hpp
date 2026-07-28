@@ -17,6 +17,11 @@ struct Frame {
 struct FilterdFrame {
     Data    data;
     uint8_t dlc;
+
+    void fromFrame(const Frame& frame) {
+        data = frame.data;
+        dlc  = frame.dlc;
+    }
 };
 
 struct FilterdStandardFrame {
