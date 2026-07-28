@@ -1,13 +1,13 @@
 #pragma once
 
+#include "nnct/types/can.hpp"
 #include <nnct/interfaces/can_sender.hpp>
 
 namespace nnct::mocks {
     
 class CanSender : public interfaces::CanSender {
     public:
-        void sendStandard(uint16_t id, const types::can::Data& data, uint8_t dlc) override;
-        void sendExtended(uint32_t id, const types::can::Data& data, uint8_t dlc) override;
+        void send(const types::can::Frame& frame) override;
         
         bool called { false };
         bool latest_is_std;
