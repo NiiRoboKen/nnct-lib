@@ -1,3 +1,4 @@
+#include "nnct/constants/can_data_empty.hpp"
 #include <nnct/mocks/can_sender.hpp>
 
 namespace nnct::mocks {
@@ -9,6 +10,15 @@ void CanSender::send(const types::can::Frame& frame) {
     latest_id = frame.id;
     latest_data = frame.data;
     latest_dlc = frame.dlc;
+}
+
+void CanSender::clear() {
+    called = false;
+    latest_is_std = false;
+    latest_is_ext = false;
+    latest_id = 0;
+    latest_data = constants::can::EMPTY;
+    latest_dlc = 0;
 }
     
 }

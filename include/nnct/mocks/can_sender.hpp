@@ -7,6 +7,7 @@ namespace nnct::mocks {
 class CanSender : public interfaces::CanSender {
     public:
         void send(const types::can::Frame& frame) override;
+        void clear();
         
         bool called                     { false };
         bool latest_is_std              { false };
