@@ -8,20 +8,17 @@ namespace nnct::types::can {
 using Data = std::array<uint8_t, 8>;
 
 struct Frame {
-    uint32_t id;
-    Data data;
-    uint8_t dlc;
-    bool extd;
+    uint32_t    id;
+    Data        data;
+    uint8_t     dlc;
+    bool        extd;
 };
 
-struct FilterdStandardFrame {
-    Data data;
+struct FilterdFrame {
+    Data    data;
     uint8_t dlc;
-};
 
-struct FilterdExtendedFrame {
-    Data data;
-    uint8_t dlc;
+    static FilterdFrame fromFrame(const Frame& frame) { return {frame.data, frame.dlc}; }
 };
 
 }

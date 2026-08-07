@@ -6,15 +6,15 @@ namespace nnct::mocks {
     
 class CanSender : public interfaces::CanSender {
     public:
-        void sendStandard(uint16_t id, const types::can::Data& data, uint8_t dlc) override;
-        void sendExtended(uint32_t id, const types::can::Data& data, uint8_t dlc) override;
+        void send(const types::can::Frame& frame) override;
+        void clear();
         
-        bool called { false };
-        bool latest_is_std;
-        bool latest_is_ext;
-        uint32_t latest_id;
-        types::can::Data latest_data;
-        uint8_t latest_dlc;
+        bool called                     { false };
+        bool latest_is_std              { false };
+        bool latest_is_ext              { false };
+        uint32_t latest_id              { 0 };
+        types::can::Data latest_data    { constants::can::EMPTY };
+        uint8_t latest_dlc              { 0 };
 };
     
 }
