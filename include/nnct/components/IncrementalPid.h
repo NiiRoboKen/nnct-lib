@@ -1,7 +1,7 @@
 #pragma once
 #include <Arduino.h>
 
-class IncrementalPid {
+class IncrementalPID {
     private:
         double kp, ki, kd;
         double out_min, out_max;
@@ -12,7 +12,7 @@ class IncrementalPid {
         double integral_max, integral_min;
 
     public:
-        IncrementalPid(double kp, double ki, double kd, double out_min, double out_max, double INTEGRAL_MAX,
+        IncrementalPID(double kp, double ki, double kd, double out_min, double out_max, double INTEGRAL_MAX,
                        double INTEGRAL_MIN)
             : kp(kp), ki(ki), kd(kd), out_min(out_min), out_max(out_max), prev_error(0.0), prev_delta_error(0.0), output(0.0),
               integral_max(INTEGRAL_MAX), integral_min(INTEGRAL_MIN) {}
