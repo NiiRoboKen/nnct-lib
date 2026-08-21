@@ -7,10 +7,10 @@
 namespace nnct::components {
     
 template<typename T>
-class SpscQueue {
+class FastSpscQueue {
     public:
-        explicit SpscQueue(std::size_t size_exp);
-        ~SpscQueue() = default;
+        explicit FastSpscQueue(std::size_t size_exp);
+        ~FastSpscQueue() = default;
         
         bool enqueue(T item);
         bool dequeue();
@@ -31,4 +31,4 @@ class SpscQueue {
 
 }
 
-#include <nnct/components/spsc_queue.ipp>
+#include <nnct/components/fast_spsc_queue.ipp>
