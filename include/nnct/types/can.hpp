@@ -18,7 +18,7 @@ struct FilterdFrame {
     Data    data;
     uint8_t len;
 
-    static FilterdFrame fromFrame(const Frame& frame) { return {frame.data, frame.dlc}; }
+    static FilterdFrame fromFrame(const Frame& frame) { return {frame.data, frame.len}; }
 };
 
 }
