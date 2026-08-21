@@ -4,6 +4,6 @@
 
 namespace nnct::constants::can {
     
-constexpr nnct::types::can::Data EMPTY = {0, 0, 0, 0, 0, 0, 0, 0};
+constexpr nnct::types::can::data_t EMPTY = {0, 0, 0, 0, 0, 0, 0, 0};
     
 }
