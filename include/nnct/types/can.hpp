@@ -5,20 +5,24 @@
 
 namespace nnct::types::can {
     
-using Data = std::array<uint8_t, 8>;
+using id_t = uint32_t;
+using ext_id_t = uint32_t;
+using std_id_t = uint16_t;
+
+using data_t = std::array<uint8_t, 8>;
 
 struct Frame {
     uint32_t    id;
-    Data        data;
-    uint8_t     dlc;
+    data_t      data;
+    uint8_t     len;
     bool        extd;
 };
 
 struct FilterdFrame {
-    Data    data;
-    uint8_t dlc;
+    data_t  data;
+    uint8_t len;
 
-    static FilterdFrame fromFrame(const Frame& frame) { return {frame.data, frame.dlc}; }
+    static FilterdFrame fromFrame(const Frame& frame) { return {frame.data, frame.len}; }
 };
 
 }
