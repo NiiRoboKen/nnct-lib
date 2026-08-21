@@ -9,7 +9,7 @@ void CanSender::send(const types::can::Frame& frame) {
     latest_is_ext   = frame.extd;
     latest_id       = frame.id;
     latest_data     = frame.data;
-    latest_dlc      = frame.dlc;
+    latest_len      = frame.len;
 }
 
 void CanSender::clear() {
@@ -18,7 +18,7 @@ void CanSender::clear() {
     latest_is_ext   = false;
     latest_id       = 0;
     latest_data     = constants::can::EMPTY;
-    latest_dlc      = 0;
+    latest_len      = 0;
 }
     
 }
