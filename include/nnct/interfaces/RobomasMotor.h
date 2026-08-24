@@ -12,7 +12,7 @@ class RobomasMotor {
         RobomasMotor(robomas_id_t motorId, int16_t maxCurrent = 5000) : motorId_(motorId), maxCurrent_(maxCurrent) {}
 
         int16_t angle() const { return angle_; }
-        int16_t speed() const { return speed_; }
+        int16_t rpm() const { return rpm_; }
         int16_t current() const { return current_; }
         uint8_t temperature() const { return temperature_; }
 
@@ -37,7 +37,7 @@ class RobomasMotor {
         int16_t targetCurrent_ = 0;
 
         int16_t angle_       = 0;
-        int16_t speed_       = 0;
+        int16_t rpm_         = 0;
         int16_t current_     = 0;
         uint8_t temperature_ = 0;
 };
@@ -119,7 +119,7 @@ class RobomasCAN {
             RobomasMotor& motor = *instance_->motors_[motorIndex];
 
             motor.angle_       = readInt16(data, 0);
-            motor.speed_       = readInt16(data, 2);
+            motor.rpm_         = readInt16(data, 2);
             motor.current_     = readInt16(data, 4);
             motor.temperature_ = data[6];
         }
