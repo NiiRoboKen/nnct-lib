@@ -47,8 +47,8 @@ class RobomasCAN {
             CAN.setPins(rxPin_, txPin_);
 
             if (!CAN.begin(1000000)) {
-                return false;
                 Serial.println("can failed");
+                return false;
             }
 
             instance_ = this;
