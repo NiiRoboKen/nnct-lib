@@ -1,7 +1,8 @@
 #pragma once
 
-#include "AnglePid.h"
-#include "IncrementalPid.h"
-#include "Pid.h"
+#include "angle_pid.hpp"
 #include "fast_spsc_queue.hpp"
+#include "incremental_pid.hpp"
+#include "pid.hpp"
+#include "raw_pid.hpp"
 #include "watchdog.hpp"
