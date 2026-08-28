@@ -18,12 +18,9 @@ class RobomasMotor {
 
         void setCurrent(int16_t current) { targetCurrent_ = constrain(current, -maxCurrent_, maxCurrent_); }
 
-        // duty: -255 ～ 255
         void setDuty(int16_t duty, int8_t sign = 1) {
-            duty = constrain(duty, -255, 255);
-
+            duty                  = constrain(duty, -255, 255);
             const int32_t current = static_cast<int32_t>(duty) * sign * maxCurrent_ / 255;
-
             setCurrent(static_cast<int16_t>(current));
         }
 
@@ -74,7 +71,6 @@ class RobomasCAN {
 
             for (uint8_t i = 0; i < 4; ++i) {
                 const int16_t current = motors_[i] ? motors_[i]->targetCurrent_ : 0;
-
                 CAN.write(static_cast<uint8_t>(current >> 8));
                 CAN.write(static_cast<uint8_t>(current & 0xff));
             }
@@ -128,7 +124,5 @@ class RobomasCAN {
             return static_cast<int16_t>((static_cast<uint16_t>(data[index]) << 8) | data[index + 1]);
         }
 };
-
-inline RobomasCAN* RobomasCAN::instance_ = nullptr;
 
 } // namespace nnct::interfaces
