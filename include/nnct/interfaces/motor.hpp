@@ -20,14 +20,14 @@ class Motor {
 
             ledcWrite(MOTOR_CH, 0);
         }
-        void setDuty(dc_duty_t duty, int8_t sign = 1) {
+        void run(dc_duty_t duty, int8_t sign = 1) {
             const int16_t power = static_cast<int16_t>(duty) * sign;
 
             digitalWrite(DIR_PIN, power > 0 ? HIGH : LOW);
             const uint8_t output = static_cast<uint8_t>(abs(power));
             ledcWrite(MOTOR_CH, output);
         }
-        void stopMotor() { setDuty(0); }
+        void stop() { run(0); }
 
     private:
         pin_t DIR_PIN;

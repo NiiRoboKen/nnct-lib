@@ -18,7 +18,7 @@ class RobomasMotor {
 
         void setCurrent(int16_t current) { targetCurrent_ = constrain(current, -maxCurrent_, maxCurrent_); }
 
-        void setDuty(int16_t duty, int8_t sign = 1) {
+        void run(int16_t duty, int8_t sign = 1) {
             duty                  = constrain(duty, -255, 255);
             const int32_t current = static_cast<int32_t>(duty) * sign * maxCurrent_ / 255;
             setCurrent(static_cast<int16_t>(current));
