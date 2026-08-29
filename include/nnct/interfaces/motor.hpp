@@ -3,9 +3,9 @@
 #include <Arduino.h>
 #include <cstdint>
 
-using pin_t     = uint8_t;
-using ch_t      = uint8_t;
-using dc_duty_t = int16_t;
+using pin_t  = uint8_t;
+using ch_t   = uint8_t;
+using duty_t = int16_t;
 
 namespace nnct::interfaces {
 
@@ -20,7 +20,7 @@ class Motor {
 
             ledcWrite(MOTOR_CH, 0);
         }
-        void run(dc_duty_t duty, int8_t sign = 1) {
+        void run(duty_t duty, int8_t sign = 1) {
             const int16_t power = static_cast<int16_t>(duty) * sign;
 
             digitalWrite(DIR_PIN, power > 0 ? HIGH : LOW);
