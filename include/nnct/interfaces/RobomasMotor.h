@@ -51,7 +51,7 @@ class RobomasCAN {
             }
 
             instance_ = this;
-            CAN.onReceive(onReceive);
+            // CAN.onReceive(onReceive);
 
             volatile uint32_t* pREG_IER = (volatile uint32_t*)0x3ff6b010;
             *pREG_IER &= ~(uint8_t)0x10;
