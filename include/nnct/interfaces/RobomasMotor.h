@@ -24,7 +24,7 @@ class RobomasMotor {
             setCurrent(static_cast<int16_t>(current));
         }
 
-        void Stop() { targetCurrent_ = 0; }
+        void stop() { targetCurrent_ = 0; }
 
     private:
         friend class RobomasCAN;
@@ -45,7 +45,6 @@ class RobomasCAN {
 
         bool begin() {
             CAN.setPins(rxPin_, txPin_);
-
             if (!CAN.begin(1000000)) {
                 Serial.println("can failed");
                 return false;
@@ -60,6 +59,18 @@ class RobomasCAN {
             return true;
         }
 
+        // リトルエンディアン
+        static void write_le(uint8_t* ptr, int16_t value) {
+            ptr[0] = static_cast<uint8_t>(value & 0x00FF);
+            ptr[1] = static_cast<uint8_t>((value >> 8) & 0x00FF);
+        }
+
+        // ビッグエンディアン
+        static void write_be(uint8_t* ptr, int16_t value) {
+            ptr[0] = static_cast<uint8_t>((value >> 8) & 0x00FF);
+            ptr[1] = static_cast<uint8_t>(value & 0x00FF);
+        }
+
         bool send(RobomasMotor* m1 = nullptr, RobomasMotor* m2 = nullptr, RobomasMotor* m3 = nullptr,
                   RobomasMotor* m4 = nullptr) {
             motors_[0] = m1;
@@ -67,14 +78,17 @@ class RobomasCAN {
             motors_[2] = m3;
             motors_[3] = m4;
 
-            CAN.beginPacket(0x200);
+            uint8_t payload[8] = {0};
 
             for (uint8_t i = 0; i < 4; ++i) {
                 const int16_t current = motors_[i] ? motors_[i]->targetCurrent_ : 0;
-                CAN.write(static_cast<uint8_t>(current >> 8));
-                CAN.write(static_cast<uint8_t>(current & 0xff));
+                // ここをデバイスの規約に合わせる
+                // write_le(payload + (i * 2), current); // little endian
+                write_be(payload + (i * 2), current); // big endian
             }
 
+            CAN.beginPacket(0x200);
+            CAN.write(payload, 8);
             return CAN.endPacket() == 1;
         }
 
@@ -87,6 +101,9 @@ class RobomasCAN {
 
         static void onReceive(int packetSize) {
             if (instance_ == nullptr || packetSize < 7) {
+                while (CAN.available()) {
+                    CAN.read();
+                }
                 return;
             }
 
@@ -101,8 +118,8 @@ class RobomasCAN {
                 return;
             }
 
-            uint8_t   data[8] = {};
-            const int length  = min(packetSize, 8);
+            uint8_t data[8] = {};
+            int     length  = min(packetSize, 8);
 
             for (int i = 0; i < length; ++i) {
                 data[i] = static_cast<uint8_t>(CAN.read());
@@ -113,11 +130,10 @@ class RobomasCAN {
             }
 
             RobomasMotor& motor = *instance_->motors_[motorIndex];
-
-            motor.angle_       = readInt16(data, 0);
-            motor.rpm_         = readInt16(data, 2);
-            motor.current_     = readInt16(data, 4);
-            motor.temperature_ = data[6];
+            motor.angle_        = readInt16(data, 0);
+            motor.rpm_          = readInt16(data, 2);
+            motor.current_      = readInt16(data, 4);
+            motor.temperature_  = data[6];
         }
 
         static int16_t readInt16(const uint8_t* data, uint8_t index) {
