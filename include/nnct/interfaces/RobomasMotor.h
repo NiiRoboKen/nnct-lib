@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
-#include <CAN.h>
+#include <esp_can.hpp>
 
 using robomas_id_t = uint8_t;
 
@@ -29,9 +29,9 @@ class RobomasMotor {
     private:
         friend class RobomasCAN;
 
-        uint8_t motorId_;
-        int16_t maxCurrent_;
-        int16_t targetCurrent_ = 0;
+        robomas_id_t motorId_;
+        int16_t      maxCurrent_;
+        int16_t      targetCurrent_ = 0;
 
         int16_t angle_       = 0;
         int16_t rpm_         = 0;
@@ -41,34 +41,15 @@ class RobomasMotor {
 
 class RobomasCAN {
     public:
-        RobomasCAN(int rxPin, int txPin) : rxPin_(rxPin), txPin_(txPin) {}
+        RobomasCAN(int rxPin, int txPin) : rxPin_(rxPin), txPin_(txPin), can_() {}
 
         bool begin() {
-            CAN.setPins(rxPin_, txPin_);
-            if (!CAN.begin(1000000)) {
-                Serial.println("can failed");
+            if (!can_.begin(1000000, txPin_, rxPin_)) {
                 return false;
             }
-
             instance_ = this;
-            // CAN.onReceive(onReceive);
-
-            volatile uint32_t* pREG_IER = (volatile uint32_t*)0x3ff6b010;
-            *pREG_IER &= ~(uint8_t)0x10;
-
+            can_.onReceive(canCallBack);
             return true;
-        }
-
-        // リトルエンディアン
-        static void write_le(uint8_t* ptr, int16_t value) {
-            ptr[0] = static_cast<uint8_t>(value & 0x00FF);
-            ptr[1] = static_cast<uint8_t>((value >> 8) & 0x00FF);
-        }
-
-        // ビッグエンディアン
-        static void write_be(uint8_t* ptr, int16_t value) {
-            ptr[0] = static_cast<uint8_t>((value >> 8) & 0x00FF);
-            ptr[1] = static_cast<uint8_t>(value & 0x00FF);
         }
 
         bool send(RobomasMotor* m1 = nullptr, RobomasMotor* m2 = nullptr, RobomasMotor* m3 = nullptr,
@@ -80,65 +61,54 @@ class RobomasCAN {
 
             uint8_t payload[8] = {0};
 
-            for (uint8_t i = 0; i < 4; ++i) {
-                const int16_t current = motors_[i] ? motors_[i]->targetCurrent_ : 0;
-                // ここをデバイスの規約に合わせる
-                // write_le(payload + (i * 2), current); // little endian
-                write_be(payload + (i * 2), current); // big endian
+            for (int i = 0; i < 4; ++i) {
+                if (motors_[i] == nullptr) continue;
+                const int16_t current = motors_[i]->targetCurrent_;
+                payload[i * 2]        = static_cast<uint8_t>((current >> 8) & 0xFF);
+                payload[i * 2 + 1]    = static_cast<uint8_t>(current & 0xFF);
             }
-
-            CAN.beginPacket(0x200);
-            CAN.write(payload, 8);
-            return CAN.endPacket() == 1;
+            return can_.sendStandard(0x200, payload, 8);
         }
 
     private:
-        int rxPin_;
-        int txPin_;
+        uint8_t rxPin_;
+        uint8_t txPin_;
 
         RobomasMotor*      motors_[4] = {};
+        CanDriver          can_;
         static RobomasCAN* instance_;
 
-        static void onReceive(int packetSize) {
-            if (instance_ == nullptr || packetSize < 7) {
-                while (CAN.available()) {
-                    CAN.read();
-                }
+        static void canCallBack(twai_message_t msg) {
+            if (instance_ == nullptr) {
+                return;
+            }
+            const int motorIndex = static_cast<int>(msg.identifier) - 0x201;
+
+            if (motorIndex < 0 || motorIndex >= 4) {
                 return;
             }
 
-            const int id         = CAN.packetId();
-            const int motorIndex = id - 0x201;
-
-            // 範囲外のデータは読み捨てる
-            if (motorIndex < 0 || motorIndex >= 4 || instance_->motors_[motorIndex] == nullptr) {
-                while (CAN.available()) {
-                    CAN.read();
-                }
+            if (instance_->motors_[motorIndex] == nullptr) {
+                return;
+            }
+            if (msg.data_length_code < 7) {
                 return;
             }
 
-            uint8_t data[8] = {};
-            int     length  = min(packetSize, 8);
+            RobomasMotor&  motor = *instance_->motors_[motorIndex];
+            const uint8_t* data  = msg.data;
 
-            for (int i = 0; i < length; ++i) {
-                data[i] = static_cast<uint8_t>(CAN.read());
-            }
-
-            while (CAN.available()) {
-                CAN.read();
-            }
-
-            RobomasMotor& motor = *instance_->motors_[motorIndex];
-            motor.angle_        = readInt16(data, 0);
-            motor.rpm_          = readInt16(data, 2);
-            motor.current_      = readInt16(data, 4);
-            motor.temperature_  = data[6];
+            motor.angle_       = readInt16BE(data, 0);
+            motor.rpm_         = readInt16BE(data, 2);
+            motor.current_     = readInt16BE(data, 4);
+            motor.temperature_ = data[6];
         }
 
-        static int16_t readInt16(const uint8_t* data, uint8_t index) {
-            return static_cast<int16_t>((static_cast<uint16_t>(data[index]) << 8) | data[index + 1]);
+        static int16_t readInt16BE(const uint8_t* data, uint8_t index) {
+            return static_cast<int16_t>((static_cast<uint16_t>(data[index]) << 8) | static_cast<uint16_t>(data[index + 1]));
         }
 };
+
+RobomasCAN* RobomasCAN::instance_ = nullptr;
 
 } // namespace nnct::interfaces
